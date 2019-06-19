@@ -120,7 +120,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
         if(empty($_POST['kd_dokter'])) {
 	    $errors[] = 'Dokter tujuan tidak boleh kosong';
         }
-        if ($_POST['kd_pj'] == "A02" &&  $_POST['no_rujukan'] == "") {
+        if ($_POST['kd_pj'] == KODE_BPJS &&  $_POST['no_rujukan'] == "") {
         $errors[] = 'Anda memilih cara bayar BPJS. Silahkan masukkan nomor rujukan anda.';
         }
 
