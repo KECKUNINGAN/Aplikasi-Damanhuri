@@ -120,11 +120,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
         if(empty($_POST['kd_dokter'])) {
 	    $errors[] = 'Dokter tujuan tidak boleh kosong';
         }
-        if ($_POST['kd_pj'] == "A02" &&  $_POST['no_rujukan'] == "") {
-        $errors[] = 'Anda memilih cara bayar BPJS. Silahkan masukkan nomor rujukan anda.';
-        }
-
-        // Check no rujukan not empty
+        if ($_POST['kd_pj'] == "A02") {
+	    if ($_POST['no_rujukan'] !== "") { 
+                // Check no rujukan not empty
   		ini_set("default_socket_timeout","05");
   		set_time_limit(5);
   		$f=fopen(BpjsApiUrl,"r");
@@ -163,7 +161,10 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
   		} else {
     		$cek_rujukan = "offline";
   		}
-
+	    } else { 
+                $errors[] = 'Anda memilih cara bayar BPJS. Silahkan masukkan nomor rujukan anda.';
+            } 
+	}
         if ($cek_rujukan !== "OK") {
         	$errors[] = 'Nomor rujukan BPJS anda tidak ditemukan. Silahkan gunakan cara bayar sebagai Pasien UMUM.';
         } else if ($cek_rujukan == "offline") {
