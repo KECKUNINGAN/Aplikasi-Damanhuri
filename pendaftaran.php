@@ -167,7 +167,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
 	}
         if ($cek_rujukan !== "OK") {
         	$errors[] = 'Nomor rujukan BPJS anda tidak ditemukan. Silahkan gunakan cara bayar sebagai Pasien UMUM.';
-        } else if ($cek_rujukan == "offline") {
+        } 
+	if ($cek_rujukan == "offline") {
         	$errors[] = 'Sambungan ke server BPJS sedang ada gangguan. Silahkan ulangi beberapa saat lagi.';
         }
       
