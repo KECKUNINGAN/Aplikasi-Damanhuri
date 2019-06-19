@@ -120,20 +120,23 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
         if(empty($_POST['kd_dokter'])) {
 	    $errors[] = 'Dokter tujuan tidak boleh kosong';
         }
-        if ($_POST['kd_pj'] == "A02") {
-	    if ($_POST['no_rujukan'] !== "") { 
-                // Check no rujukan not empty
-  		ini_set("default_socket_timeout","05");
-  		set_time_limit(5);
-  		$f=fopen(BpjsApiUrl,"r");
-  		$r=fread($f,1000);
-  		fclose($f);
+        if ($_POST['kd_pj'] == "A02" &&  $_POST['no_rujukan'] == "") {
+        $errors[] = 'Anda memilih cara bayar BPJS. Silahkan masukkan nomor rujukan anda.';
+        }
 
-  		$no_rujukan = trim($_REQUEST['no_rujukan']);
+        if(!empty($_POST['no_rujukan'])) {      
+          // Check no rujukan not empty
+  		  ini_set("default_socket_timeout","05");
+  		  set_time_limit(5);
+  		  $f=fopen(BpjsApiUrl,"r");
+  		  $r=fread($f,1000);
+  		  fclose($f);
+
+  		  $no_rujukan = trim($_REQUEST['no_rujukan']);
   
-  		$Rujukan = array();
+  		  $Rujukan = array();
 
-  		if(strlen($r)>1) {
+  		  if(strlen($r)>1) {
     		date_default_timezone_set('UTC');
     		$tStamp = strval(time()-strtotime('1970-01-01 00:00:00'));
     		$signature = hash_hmac('sha256', ConsID."&".$tStamp, SecretKey, true);
@@ -158,18 +161,15 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     		//print_r($content);
     		$result = json_decode($content, true);
     		$cek_rujukan = $result['metaData']['message'];
-  		} else {
+  		  } else {
     		$cek_rujukan = "offline";
-  		}
-	    } else { 
-                $errors[] = 'Anda memilih cara bayar BPJS. Silahkan masukkan nomor rujukan anda.';
-            } 
-	}
-        if ($cek_rujukan !== "OK") {
+  		  }
+
+          if ($cek_rujukan !== "OK") {
         	$errors[] = 'Nomor rujukan BPJS anda tidak ditemukan. Silahkan gunakan cara bayar sebagai Pasien UMUM.';
-        } 
-	if ($cek_rujukan == "offline") {
+          } else if ($cek_rujukan == "offline") {
         	$errors[] = 'Sambungan ke server BPJS sedang ada gangguan. Silahkan ulangi beberapa saat lagi.';
+          }
         }
       
         if(!empty($errors)) {
