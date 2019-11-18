@@ -16,7 +16,7 @@ session_start();
 
 require_once('config.php');
 
-if(SIGNUP !== 'ENABLE') {
+if(SIGNUP !== 'DISABLE') {
     redirect ('login.php');
 }
 
@@ -131,19 +131,27 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
         '$date',
         '{$_POST['no_tlp']}',
         '-',
-        '-',
-        '-',
-        '-',
-        'A01',
-        '-',
-        '{$_POST['kd_kel']}',
-        '{$_POST['kd_kec']}',
-        '{$_POST['kd_kab']}',
-        '-',
-        '-',
-        '-',
-        '-',
-        '-'
+		'-',
+		'',
+		'-',
+		'-',
+		'-',
+		1,
+		1,
+		1,
+		'-',
+		'-',
+		'-',
+		'-',
+		'-',
+		'-',
+		1,
+		1,
+		1,
+		'-',
+		'-',
+		1,
+		'-'
     )");
 
 	if($insert) {
