@@ -31,7 +31,7 @@ include_once ('layout/header.php');
                                 <div class="col-sm-12">
                                     <div class="form-group">
                                         <div class="form-line">
-                                            <textarea id="screen" rows="14" class="form-control no-resize" placeholder="Kosong..."></textarea>
+                                            <textarea id="screen" rows="14" class="form-control no-resize" placeholder="Kosong..." disabled></textarea>
                                         </div>
                                     </div>
                                 </div>

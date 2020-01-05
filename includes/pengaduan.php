@@ -16,10 +16,8 @@ session_start();
 
 include ('../config.php');
 
-$message = $_POST['message'];
-
-if($message != "") {
- $sql = "INSERT INTO pengaduan VALUES(NULL,current_time(), '$_SESSION[username]', '$message')";
+if(isset($_POST['message']) && $_POST['message'] != "") {
+ $sql = "INSERT INTO pengaduan VALUES(NULL,current_time(), '{$_SESSION['username']}', '{$_POST['message']}')";
  query($sql);
 }
 
