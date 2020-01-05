@@ -16,7 +16,7 @@ session_start();
 
 require_once('config.php');
 
-if(SIGNUP !== 'DISABLE') {
+if(SIGNUP == 'DISABLE') {
     redirect ('login.php');
 }
 
