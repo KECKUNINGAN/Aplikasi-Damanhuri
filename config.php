@@ -37,6 +37,9 @@ define ("BpjsApiUrl","https://new-api.bpjs-kesehatan.go.id:8080/new-vclaim-rest/
 define ("ConsID","");
 define ("SecretKey","");
 
+// Limit untuk kuota. Misal 2 (50%), 4 (25%) dari kuota dalam jadwal
+define ("LIMIT", 2);
+
 
 function escape($string) {
     global $connection;

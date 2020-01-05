@@ -111,6 +111,28 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     $cek = fetch_array(query("SELECT no_reg FROM booking_registrasi WHERE no_rkm_medis='$_SESSION[username]' AND tanggal_periksa='$_POST[tgl_registrasi]'"));
     if($cek == ''){
 
+      $tentukan_hari=date('D',strtotime($_POST['tgl_registrasi']));
+      $day = array(
+        'Sun' => 'AKHAD',
+        'Mon' => 'SENIN',
+        'Tue' => 'SELASA',
+        'Wed' => 'RABU',
+        'Thu' => 'KAMIS',
+        'Fri' => 'JUMAT',
+        'Sat' => 'SABTU'
+      );
+      $hari=$day[$tentukan_hari];
+
+      $sql = "SELECT a.kd_dokter, c.nm_dokter, a.kuota FROM jadwal a, poliklinik b, dokter c WHERE a.kd_poli = b.kd_poli AND a.kd_dokter = c.kd_dokter AND a.kd_poli = '{$_POST['kd_poli']}' AND a.hari_kerja LIKE '%$hari%'";
+
+      $result = fetch_assoc(query($sql));
+
+        $check_kuota = fetch_assoc(query("SELECT COUNT(*) AS count FROM booking_registrasi WHERE kd_poli = '{$_POST['kd_poli']}' AND tanggal_periksa = '{$_POST['tgl_registrasi']}'"));
+        $curr_count = $check_kuota['count'];
+        $curr_kuota = $result['kuota'];
+        $online = $curr_kuota / LIMIT;
+
+
         if(empty($_POST['tgl_registrasi'])) {
 	    $errors[] = 'Tanggal registrasi tidak boleh kosong';
         }
@@ -124,7 +146,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
         $errors[] = 'Anda memilih cara bayar BPJS. Silahkan masukkan nomor rujukan anda.';
         }
 
-        if(!empty($_POST['no_rujukan'])) {      
+        if($curr_count > $online) {
+          $errors[] = 'Limit pendaftaran online telah terpenuhi. Silahkan pilih hari lain.';
+        }
+
+        if(!empty($_POST['no_rujukan'])) {
           // Check no rujukan not empty
   		  ini_set("default_socket_timeout","05");
   		  set_time_limit(5);
@@ -133,7 +159,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
   		  fclose($f);
 
   		  $no_rujukan = trim($_REQUEST['no_rujukan']);
-  
+
   		  $Rujukan = array();
 
   		  if(strlen($r)>1) {
@@ -171,7 +197,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
         	$errors[] = 'Sambungan ke server BPJS sedang ada gangguan. Silahkan ulangi beberapa saat lagi.';
           }
         }
-      
+
         if(!empty($errors)) {
 	        foreach($errors as $error) {
 	            echo validation_errors($error);
@@ -187,24 +213,24 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
 
         $no_rkm_medis = $_SESSION['username'];
         $tanggal_periksa = $_POST['tgl_registrasi'];
-          
-          
+
+
 	    $insert = query("
-            INSERT INTO booking_registrasi 
+            INSERT INTO booking_registrasi
             SET no_rkm_medis    = '$no_rkm_medis',
             	tanggal_periksa = '$tanggal_periksa',
                 kd_poli         = '{$_POST['kd_poli']}',
                 kd_dokter       = '{$_POST['kd_dokter']}',
                 kd_pj           = '{$_POST['kd_pj']}',
                 no_reg          = '$no_reg',
-                tanggal_booking = '$date', 
-                jam_booking 	= '$time', 
+                tanggal_booking = '$date',
+                jam_booking 	= '$time',
                 waktu_kunjungan = '$date_time',
                 limit_reg 		= '1',
                 status 			= 'Belum'
         ");
 
-	    if($insert) { 
+	    if($insert) {
 	        redirect("pendaftaran.php?action=selesai&tanggal_periksa=$tanggal_periksa&no_reg=$no_reg");
 	    }
 
@@ -321,16 +347,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
                                                     *
                                                 FROM
                                                     penjab
-                                                WHERE
-                                                    png_jawab LIKE '%umum%'
-                                                OR
-                                                    png_jawab LIKE '%bpjs%'
-                                                AND
-                                                    kd_pj!='BPJ'
-                                                AND
-                                                    kd_pj!='2'
-                                                AND
-                                                    kd_pj!='A14'
                                             ");
                                             while($row=fetch_array($result)){
 											    echo "<option id='$row[png_jawab]' value='$row[kd_pj]'>$row[png_jawab]</option>";
@@ -374,8 +390,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST") {
     LEFT JOIN penjab d ON a.kd_pj = d.kd_pj
     LEFT JOIN pasien f ON a.no_rkm_medis = f.no_rkm_medis
     WHERE a.no_reg = '{$_GET['no_reg']}'
-    AND a.tanggal_periksa = '{$_GET['tanggal_periksa']}' 
-    AND a.no_rkm_medis = '{$_SESSION['username']}' 
+    AND a.tanggal_periksa = '{$_GET['tanggal_periksa']}'
+    AND a.no_rkm_medis = '{$_SESSION['username']}'
     "));
     ?>
 
